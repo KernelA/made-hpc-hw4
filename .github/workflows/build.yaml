@@ -1,0 +1,43 @@
+name: autobuild
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Test scripts
+        working-directory: ./scripts
+        run: bash ./scripts.sh
+
+      - name: Install BLAS
+        run: |
+          sudo apt update
+          sudo apt install -y libblas-dev
+
+      - name: "CMake Build"
+        uses: lukka/run-cmake@v3
+        with:
+          useVcpkgToolchainFile: false
+          buildDirectory: "${{ github.workspace }}/build"
+          cmakeListsTxtPath: "${{ github.workspace }}/CMakeLists.txt"
+          cmakeAppendedArgs: "-GNinja -DCMAKE_BUILD_TYPE=Release --parallel $(nproc)"
+      
+      - name: "Run tests"
+        env:
+          CTEST_PARALLEL_LEVEL: 2
+        working-directory: ${{ github.workspace }}/build
+        run: ctest
+
+      - name: Run program
+        if: ${{ github.event_name == 'pull_request' }}
+        working-directory: ${{ github.workspace }}/build/matrix-mul
+        run: ./matrix-mul
