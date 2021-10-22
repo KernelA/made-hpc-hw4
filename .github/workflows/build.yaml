@@ -14,10 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Test scripts
-        working-directory: ./scripts
-        run: bash ./scripts.sh
-
       - name: Install BLAS
         run: |
           sudo apt update
