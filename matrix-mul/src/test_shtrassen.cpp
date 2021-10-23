@@ -1,7 +1,4 @@
-#include <cassert>
-
-#include "cblas.h"
-#include "matrix.h"
+#include "matrix.hpp"
 #include "stdafx.h"
 #include "utils.h"
 
@@ -18,25 +15,20 @@ int main(int argc, char** argv) {
 
   size_t matrix_size{};
 
-  if (argc == 2) {
-    matrix_size = std::stoi(argv[1]);
-  }
+  matrix_size = std::stoi(argv[1]);
 
-  Matrix a(matrix_size), b(matrix_size);
+  std::default_random_engine engine;
 
-  Matrix c(a.rowCount(), b.columnCount());
+  Matrix<long> a(matrix_size), b(matrix_size);
 
-  fill_matrix(a);
-  fill_matrix(b);
+  Matrix<long> c(a.rowCount(), b.columnCount());
 
-  cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, c.rowCount(),
-              c.columnCount(), a.columnCount(), 1.0, a.getRawData(),
-              a.columnCount(), b.getRawData(), b.columnCount(), 0.0,
-              c.getRawData(), c.columnCount());
+  a.randomFill(-100, 100, engine);
+  b.randomFill(-100, 100, engine);
 
   Matrix d = multiplyStrassen(a, b, 16);
 
-  assert(c == d);
+  assert(a * b == d);
 
   return 0;
 }

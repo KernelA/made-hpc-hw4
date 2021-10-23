@@ -1,5 +1,5 @@
-#include "vector.h"
+// #include "vector.h"
 
-using namespace linalg;
+// using namespace linalg;
 
-Vector::Vector(size_t dim) : Matrix::Matrix(dim, 1) {}
+// Vector::Vector(size_t dim) : Matrix::Matrix(dim, 1) {}

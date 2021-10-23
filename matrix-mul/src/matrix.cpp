@@ -1,255 +1,274 @@
-#include "matrix.h"
+// #include "matrix.h"
 
-#include "utils.h"
+// #include "utils.h"
 
-using namespace linalg;
+// using namespace linalg;
 
-void Matrix::fill(double fill_value) {
-  for (size_t i{}; i < elements.size(); ++i) {
-    elements[i] = fill_value;
-  }
-}
+// void Matrix::fill(double fill_value) {
+//   for (size_t i{}; i < elements.size(); ++i) {
+//     elements[i] = fill_value;
+//   }
+// }
 
-Matrix::Matrix(size_t rows, size_t columns)
-    : rows(rows), columns(columns), elements(rows * columns, 0.0) {}
+// Matrix::Matrix(size_t rows, size_t columns)
+//     : rows(rows), columns(columns), elements(rows * columns, 0.0) {}
 
-Matrix::Matrix(size_t size) : Matrix(size, size) {}
+// Matrix::Matrix(size_t size) : Matrix(size, size) {}
 
-double& Matrix::get(size_t row, size_t col) {
-  return this->elements.at(getLinearIndex(row, col));
-}
+// double& Matrix::get(size_t row, size_t col) {
+//   return this->elements.at(getLinearIndex(row, col));
+// }
 
-size_t Matrix::getLinearIndex(size_t row, size_t column) const {
-  return row * columnCount() + column;
-}
+// Matrix Matrix::powerOf(uint power) const {
+//   using std::function;
+//   using std::placeholders::_1;
+//   using std::placeholders::_2;
 
-const double& Matrix::get(size_t row, size_t col) const {
-  return this->elements.at(getLinearIndex(row, col));
-}
+//   Matrix powerMatrix{*this};
 
-void Matrix::set(size_t row, size_t col, const double& value) {
-  this->elements.at(getLinearIndex(row, col)) = value;
-}
+//   std::function<Matrix(const Matrix&, const Matrix&)> mult_oper = operator*;
 
-void Matrix::checkShapeEquality(const Matrix& other) const {
-  if (rows != other.rows || columns != other.columns) {
-    throw SizeMismatchException();
-  }
-}
+//   // if (this->rowCount() == this->columnCount()) {
+//   //   mult_oper = std::bind(multiplyStrassen, _1, _2, 16);
+//   // } else {
+//   //   mult_oper = operator*;
+//   // }
 
-Matrix& Matrix::operator*=(const Matrix& a) {
-  if (columns != a.rows) {
-    throw SizeMismatchException();
-  }
+//   for (uint step{1}; step < power; step <<= 1) {
+//     std::cout << "Power: " << step << std::endl;
+//     powerMatrix = mult_oper(powerMatrix, powerMatrix);
+//   }
 
-  Matrix temp(*this);
+//   if (power % 2 != 0 && power > 1) {
+//     std::cout << "add Power: " << std::endl;
+//     powerMatrix *= *this;
+//   }
 
-  this->resize(rows, a.columns);
-  fill(0.0);
+//   return powerMatrix;
+// }
 
-  for (size_t i{}; i < temp.columnCount(); ++i) {
-    for (size_t row{}; row < rowCount(); ++row) {
-      for (size_t col{}; col < a.columnCount(); ++col) {
-        this->get(row, col) += temp.get(row, i) * a.get(i, col);
-      }
-    }
-  }
+// const double& Matrix::get(size_t row, size_t col) const {
+//   return this->elements.at(getLinearIndex(row, col));
+// }
 
-  return *this;
-}
+// void Matrix::set(size_t row, size_t col, const double& value) {
+//   this->elements.at(getLinearIndex(row, col)) = value;
+// }
 
-Matrix& Matrix::operator+=(const Matrix& a) {
-  checkShapeEquality(a);
+// void Matrix::checkShapeEquality(const Matrix& other) const {
+//   if (rows != other.rows || columns != other.columns) {
+//     throw SizeMismatchException();
+//   }
+// }
 
-  for (size_t i{}; i < elements.size(); ++i) {
-    elements[i] += a.elements[i];
-  }
+// const Matrix& Matrix::operator*=(const Matrix& a) {
+//   if (columns != a.rows) {
+//     throw SizeMismatchException();
+//   }
 
-  return *this;
-}
+//   Matrix temp(*this);
 
-Matrix& Matrix::operator-=(const Matrix& a) {
-  checkShapeEquality(a);
+//   this->resize(rows, a.columns);
+//   fill(0.0);
 
-  for (size_t i{}; i < elements.size(); ++i) {
-    elements[i] -= a.elements[i];
-  }
+//   for (size_t i{}; i < temp.columnCount(); ++i) {
+//     for (size_t row{}; row < rowCount(); ++row) {
+//       for (size_t col{}; col < a.columnCount(); ++col) {
+//         this->get(row, col) += temp.get(row, i) * a.get(i, col);
+//       }
+//     }
+//   }
 
-  return *this;
-}
+//   return *this;
+// }
 
-Matrix Matrix::operator+(const Matrix& other) const {
-  Matrix sum(*this);
-  return sum += other;
-}
+// const Matrix& Matrix::operator+=(const Matrix& a) {
+//   checkShapeEquality(a);
 
-Matrix Matrix::operator-(const Matrix& other) const {
-  Matrix sum(*this);
-  return sum -= other;
-}
+//   for (size_t i{}; i < elements.size(); ++i) {
+//     elements[i] += a.elements[i];
+//   }
 
-Matrix Matrix::operator*(const Matrix& a) const {
-  Matrix matrix_mult(*this);
+//   return *this;
+// }
 
-  return matrix_mult *= a;
-}
+// const Matrix& Matrix::operator-=(const Matrix& a) {
+//   checkShapeEquality(a);
 
-void Matrix::resize(size_t new_rows, size_t new_cols) {
-  if (new_rows == rowCount() && new_cols == columnCount()) {
-    return;
-  }
+//   for (size_t i{}; i < elements.size(); ++i) {
+//     elements[i] -= a.elements[i];
+//   }
 
-  elements.resize(new_rows * new_cols);
-  rows = new_rows;
-  columns = new_cols;
-}
+//   return *this;
+// }
 
-bool Matrix::operator==(const Matrix& a) const {
-  if (rows != a.rows || columns != a.columns) {
-    return false;
-  }
+// Matrix Matrix::operator+(const Matrix& other) const {
+//   Matrix sum(*this);
+//   return sum += other;
+// }
 
-  for (size_t i{}; i < rows; ++i) {
-    for (size_t j{}; j < columns; ++j) {
-      if (std::abs(this->get(i, j) - a.get(i, j)) > EPS) {
-        return false;
-      }
-    }
-  }
+// Matrix Matrix::operator-(const Matrix& other) const {
+//   Matrix sum(*this);
+//   return sum -= other;
+// }
 
-  return true;
-}
+// void Matrix::resize(size_t new_rows, size_t new_cols) {
+//   if (new_rows == rowCount() && new_cols == columnCount()) {
+//     return;
+//   }
 
-bool Matrix::operator!=(const Matrix& a) const { return !(*this == a); }
+//   elements.resize(new_rows * new_cols);
+//   rows = new_rows;
+//   columns = new_cols;
+// }
 
-size_t Matrix::rowCount() const { return rows; }
+// bool Matrix::operator==(const Matrix& a) const {
+//   if (rows != a.rows || columns != a.columns) {
+//     return false;
+//   }
 
-size_t Matrix::columnCount() const { return columns; }
+//   for (size_t i{}; i < rows; ++i) {
+//     for (size_t j{}; j < columns; ++j) {
+//       if (std::abs(this->get(i, j) - a.get(i, j)) > EPS) {
+//         return false;
+//       }
+//     }
+//   }
 
-const double* Matrix::getRawData() const { return elements.data(); }
+//   return true;
+// }
 
-double* Matrix::getRawData() { return elements.data(); }
+// bool Matrix::operator!=(const Matrix& a) const { return !(*this == a); }
 
-std::ostream& linalg::operator<<(std::ostream& output, const Matrix& matrix) {
-  for (size_t row{}; row < matrix.rowCount(); ++row) {
-    size_t column{};
-    for (; column < matrix.columnCount() - 1; ++column) {
-      output << matrix.get(row, column) << ' ';
-    }
+// size_t Matrix::rowCount() const { return rows; }
 
-    output << matrix.get(row, column) << '\n';
-  }
+// size_t Matrix::columnCount() const { return columns; }
 
-  return output;
-}
+// const double* Matrix::getRawData() const { return elements.data(); }
 
-std::istream& linalg::operator>>(std::istream& input, Matrix& matrix) {
-  size_t new_rows{}, new_columns{};
-  double elem{};
+// double* Matrix::getRawData() { return elements.data(); }
 
-  input >> new_rows >> new_columns;
+// std::ostream& linalg::operator<<(std::ostream& output, const Matrix& matrix)
+// {
+//   for (size_t row{}; row < matrix.rowCount(); ++row) {
+//     size_t column{};
+//     for (; column < matrix.columnCount() - 1; ++column) {
+//       output << matrix.get(row, column) << ' ';
+//     }
 
-  matrix.resize(new_rows, new_columns);
+//     output << matrix.get(row, column) << '\n';
+//   }
 
-  for (size_t row{}; row < matrix.rowCount(); ++row) {
-    for (size_t column{}; column < matrix.columnCount(); ++column) {
-      input >> matrix.get(row, column);
-    }
-  }
+//   return output;
+// }
 
-  return input;
-}
+// std::istream& linalg::operator>>(std::istream& input, Matrix& matrix) {
+//   size_t new_rows{}, new_columns{};
+//   double elem{};
 
-Matrix linalg::multiplyStrassenR(const Matrix& a, const Matrix& b,
-                                 size_t baseBlockSize) {
-  if (a.rowCount() <= baseBlockSize) {
-    return a * b;
-  }
+//   input >> new_rows >> new_columns;
 
-  size_t newBlockSize = a.rowCount() / 2;
+//   matrix.resize(new_rows, new_columns);
 
-  Matrix a11(newBlockSize), a12(newBlockSize), a21(newBlockSize),
-      a22(newBlockSize), b11(newBlockSize), b12(newBlockSize),
-      b21(newBlockSize), b22(newBlockSize);
+//   for (size_t row{}; row < matrix.rowCount(); ++row) {
+//     for (size_t column{}; column < matrix.columnCount(); ++column) {
+//       input >> matrix.get(row, column);
+//     }
+//   }
 
-  for (size_t row{}; row < newBlockSize; ++row) {
-    for (size_t col{}; col < newBlockSize; ++col) {
-      a11.set(row, col, a.get(row, col));
-      a12.set(row, col, a.get(row, col + newBlockSize));
-      a21.set(row, col, a.get(row + newBlockSize, col));
-      a22.set(row, col, a.get(row + newBlockSize, col + newBlockSize));
+//   return input;
+// }
 
-      b11.set(row, col, b.get(row, col));
-      b12.set(row, col, b.get(row, col + newBlockSize));
-      b21.set(row, col, b.get(row + newBlockSize, col));
-      b22.set(row, col, b.get(row + newBlockSize, col + newBlockSize));
-    }
-  }
+// Matrix linalg::multiplyStrassenR(const Matrix& a, const Matrix& b,
+//                                  size_t baseBlockSize) {
+//   if (a.rowCount() <= baseBlockSize) {
+//     return a * b;
+//   }
 
-  Matrix p1 = multiplyStrassenR(a11 + a22, b11 + b22, baseBlockSize);
-  Matrix p2 = multiplyStrassenR(a21 + a22, b11, baseBlockSize);
-  Matrix p3 = multiplyStrassenR(a11, b12 - b22, baseBlockSize);
-  Matrix p4 = multiplyStrassenR(a22, b21 - b11, baseBlockSize);
-  Matrix p5 = multiplyStrassenR(a11 + a12, b22, baseBlockSize);
-  Matrix p6 = multiplyStrassenR(a21 - a11, b11 + b12, baseBlockSize);
-  Matrix p7 = multiplyStrassenR(a12 - a22, b21 + b22, baseBlockSize);
+//   size_t newBlockSize = a.rowCount() / 2;
 
-  Matrix c11{p1 + p4 - p5 + p7};
-  Matrix c12{p3 + p5};
-  Matrix c21{p2 + p4};
-  Matrix c22{p1 - p2 + p3 + p6};
+//   Matrix a11(newBlockSize), a12(newBlockSize), a21(newBlockSize),
+//       a22(newBlockSize), b11(newBlockSize), b12(newBlockSize),
+//       b21(newBlockSize), b22(newBlockSize);
 
-  Matrix c(a.rowCount());
+//   for (size_t row{}; row < newBlockSize; ++row) {
+//     for (size_t col{}; col < newBlockSize; ++col) {
+//       a11.set(row, col, a.get(row, col));
+//       a12.set(row, col, a.get(row, col + newBlockSize));
+//       a21.set(row, col, a.get(row + newBlockSize, col));
+//       a22.set(row, col, a.get(row + newBlockSize, col + newBlockSize));
 
-  for (size_t row{}; row < newBlockSize; ++row) {
-    for (size_t col{}; col < newBlockSize; ++col) {
-      c.set(row, col, c11.get(row, col));
-      c.set(row, col + newBlockSize, c12.get(row, col));
-      c.set(row + newBlockSize, col, c21.get(row, col));
-      c.set(row + newBlockSize, col + newBlockSize, c22.get(row, col));
-    }
-  }
+//       b11.set(row, col, b.get(row, col));
+//       b12.set(row, col, b.get(row, col + newBlockSize));
+//       b21.set(row, col, b.get(row + newBlockSize, col));
+//       b22.set(row, col, b.get(row + newBlockSize, col + newBlockSize));
+//     }
+//   }
 
-  return c;
-}
+//   Matrix p1 = multiplyStrassenR(a11 + a22, b11 + b22, baseBlockSize);
+//   Matrix p2 = multiplyStrassenR(a21 + a22, b11, baseBlockSize);
+//   Matrix p3 = multiplyStrassenR(a11, b12 - b22, baseBlockSize);
+//   Matrix p4 = multiplyStrassenR(a22, b21 - b11, baseBlockSize);
+//   Matrix p5 = multiplyStrassenR(a11 + a12, b22, baseBlockSize);
+//   Matrix p6 = multiplyStrassenR(a21 - a11, b11 + b12, baseBlockSize);
+//   Matrix p7 = multiplyStrassenR(a12 - a22, b21 + b22, baseBlockSize);
 
-Matrix linalg::multiplyStrassen(const Matrix& a, const Matrix& b,
-                                size_t baseBlockSize) {
-  if (a.rowCount() != a.columnCount() || b.rowCount() != b.columnCount() ||
-      a.columnCount() != b.rowCount()) {
-    throw std::invalid_argument("Expected square matrix");
-  }
+//   Matrix c11{p1 + p4 - p5 + p7};
+//   Matrix c12{p3 + p5};
+//   Matrix c21{p2 + p4};
+//   Matrix c22{p1 - p2 + p3 + p6};
 
-  size_t matrix_size = a.rowCount();
-  size_t new_size = linalg::nextPowerOfTwo(matrix_size);
+//   Matrix c(a.rowCount());
 
-  Matrix aligned_a(new_size), aligned_b(new_size);
+//   for (size_t row{}; row < newBlockSize; ++row) {
+//     for (size_t col{}; col < newBlockSize; ++col) {
+//       c.set(row, col, c11.get(row, col));
+//       c.set(row, col + newBlockSize, c12.get(row, col));
+//       c.set(row + newBlockSize, col, c21.get(row, col));
+//       c.set(row + newBlockSize, col + newBlockSize, c22.get(row, col));
+//     }
+//   }
 
-  for (size_t row{}; row < a.rowCount(); ++row) {
-    for (size_t col{}; col < a.columnCount(); ++col) {
-      aligned_a.set(row, col, a.get(row, col));
-      aligned_b.set(row, col, b.get(row, col));
-    }
-  }
+//   return c;
+// }
 
-  for (size_t row{a.rowCount()}; row < aligned_a.rowCount(); ++row) {
-    aligned_a.set(row, row, 1);
-    aligned_b.set(row, row, 1);
-  }
+// Matrix linalg::multiplyStrassen(const Matrix& a, const Matrix& b,
+//                                 size_t baseBlockSize) {
+//   if (a.rowCount() != a.columnCount() || b.rowCount() != b.columnCount() ||
+//       a.columnCount() != b.rowCount()) {
+//     throw std::invalid_argument("Expected square matrix");
+//   }
 
-  Matrix product{multiplyStrassenR(aligned_a, aligned_b, baseBlockSize)};
+//   size_t matrix_size = a.rowCount();
+//   size_t new_size = linalg::nextPowerOfTwo(matrix_size);
 
-  if (matrix_size == new_size) {
-    return product;
-  } else {
-    Matrix res(new_size);
+//   Matrix aligned_a(new_size), aligned_b(new_size);
 
-    for (size_t row{}; row < a.rowCount(); ++row) {
-      for (size_t col{}; col < a.columnCount(); ++col) {
-        res.set(row, col, product.get(row, col));
-      }
-    }
+//   for (size_t row{}; row < a.rowCount(); ++row) {
+//     for (size_t col{}; col < a.columnCount(); ++col) {
+//       aligned_a.set(row, col, a.get(row, col));
+//       aligned_b.set(row, col, b.get(row, col));
+//     }
+//   }
 
-    return res;
-  }
-}
+//   for (size_t row{a.rowCount()}; row < aligned_a.rowCount(); ++row) {
+//     aligned_a.set(row, row, 1);
+//     aligned_b.set(row, row, 1);
+//   }
+
+//   Matrix product{multiplyStrassenR(aligned_a, aligned_b, baseBlockSize)};
+
+//   if (matrix_size == new_size) {
+//     return product;
+//   } else {
+//     Matrix res(new_size);
+
+//     for (size_t row{}; row < a.rowCount(); ++row) {
+//       for (size_t col{}; col < a.columnCount(); ++col) {
+//         res.set(row, col, product.get(row, col));
+//       }
+//     }
+
+//     return res;
+//   }
+// }
