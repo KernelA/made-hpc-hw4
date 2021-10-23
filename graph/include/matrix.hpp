@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
+#include "vector.hpp"
 
 namespace linalg {
 
@@ -39,7 +40,7 @@ class Matrix {
 
   Matrix& operator=(const Matrix& a) = default;
 
-  ~Matrix() = default;
+  virtual ~Matrix() = default;
 
   reference at(size_t row, size_t col) {
     return this->elements.at(getLinearIndex(row, col));
@@ -49,7 +50,7 @@ class Matrix {
     return this->elements.at(getLinearIndex(row, col));
   }
 
-  const Matrix& operator*=(const Matrix& a) {
+    const Matrix& operator*=(const Matrix& a) {
     if (columnCount() != a.rowCount()) {
       throw SizeMismatchException();
     }
@@ -138,6 +139,18 @@ class Matrix {
     }
   }
 
+  Matrix transpose() const {
+    Matrix transposed(columnCount(), rowCount());
+
+    for (size_t row{}; row < rowCount(); ++row) {
+      for (size_t col{row + 1}; col < columnCount(); ++col) {
+        transposed.at(col, row) = this->at(row, col);
+      }
+    }
+
+    return transposed;
+  }
+
   size_t rowCount() const { return rows; }
 
   size_t columnCount() const { return columns; }
@@ -153,8 +166,8 @@ class Matrix {
 
     Matrix powerMatrix{*this};
 
-    std::function<Matrix(const Matrix&, const Matrix&)> mult_oper{operator*
-                                                                  <ValueT> };
+    std::function<Matrix(const Matrix&, const Matrix&)>
+        mult_oper{operator*<value_type> };
 
     if (this->rowCount() == this->columnCount()) {
       mult_oper = std::bind(multiplyStrassen<ValueT>, _1, _2, 16);
@@ -217,6 +230,24 @@ Matrix<T> operator*(const Matrix<T>& a, const Matrix<T>& b) {
   Matrix<T> matrix_mult(a);
 
   return matrix_mult *= b;
+}
+
+template <typename T>
+Matrix<T> operator*(const Matrix<T>& a, const T& value) {
+  Matrix<T> matrix_mult(a);
+
+  for (size_t row{}; row < matrix_mult.rowCount(); ++row) {
+    for (size_t col{}; col < matrix_mult.columnCount(); ++col) {
+      matrix_mult.at(row, col) *= value;
+    }
+  }
+
+  return matrix_mult;
+}
+
+template <typename T>
+Matrix<T> operator*(const T& value, const Matrix<T>& a) {
+  return a * value;
 }
 
 template <typename T>

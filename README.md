@@ -54,3 +54,5 @@ docker run mult
 ```
 
 **Полна переносимость программы внутри контейнера не гарантируется при сборке на разных ОС**
+
+https://snap.stanford.edu/data/email-Eu-core.html
