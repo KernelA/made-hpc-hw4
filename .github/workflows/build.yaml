@@ -22,10 +22,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install BLAS
+      - name: Install BLAS and OpenMP
         run: |
           sudo apt update
-          sudo apt install -y libblas-dev
+          sudo apt install -y libblas-dev libomp-dev
 
       - name: "CMake Build"
         uses: lukka/run-cmake@v3
@@ -37,6 +37,7 @@ jobs:
       
       - name: "Run tests"
         env:
+          OMP_NUM_THREAD: 1
           CTEST_PARALLEL_LEVEL: 2
         working-directory: ${{ github.workspace }}/build
         run: ctest

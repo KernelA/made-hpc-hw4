@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 
   for (size_t row{}; row < a.rowCount(); ++row) {
     for (size_t col{}; col < a.columnCount(); ++col) {
-      assert(a.at(row, column) == transposed.at(column, row));
+      assert(a.at(row, col) == transposed.at(col, row));
     }
   }
 
