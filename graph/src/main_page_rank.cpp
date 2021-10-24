@@ -13,17 +13,47 @@ int main(int argc, char** argv) {
   using std::cout;
   using std::endl;
 
-  std::ifstream input("/home/alex/made/module3/made-hpc-hw4/data/ca-GrQc.txt");
-
-  if (!input) {
-    cerr << "Connat open file with graph" << endl;
+  if (argc != 3) {
+    cerr << "Plesae specify arguments: path_to_file_with edges "
+            "page_rank_output"
+         << endl;
     return 1;
   }
-  auto graph = DiGraph::readFrom(input);
+
+  std::ifstream input(argv[1]);
+
+  if (!input) {
+    cerr << "Connat open file with graph: " << argv[1] << endl;
+    return 1;
+  }
+
+  auto graph = DiGraph::readFromEdgeLits(input);
+
+  input.close();
 
   NaivePageRank naive_pr;
 
-  auto naive_rank{naive_pr.compute(graph.adjMatrix<double>())};
+  auto adj_matrix{graph.adjMatrix<double>()};
+
+  auto naive_rank{naive_pr.compute(adj_matrix)};
+
+  PageRank page_rank{0.9, 2'000, 1e-3};
+
+  auto rank{page_rank.compute(adj_matrix)};
+
+  auto node_labels{graph.getNodelabels()};
+
+  std::ofstream out(argv[2]);
+
+  // Node labels
+  for (size_t i{}; i < node_labels.size() - 1; ++i) {
+    out << node_labels[i] << ' ';
+  }
+
+  out << node_labels.at(node_labels.size() - 1) << endl;
+  out << naive_rank.transpose() << rank.transpose();
+
+  out.close();
 
   return 0;
 }

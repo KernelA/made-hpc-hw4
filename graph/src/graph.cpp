@@ -27,18 +27,19 @@ void graph::DiGraph::add_edge(const std::string& from_node_name,
     }
   }
 
-  auto from_iterator{node_list.find(from_node_num)};
+  auto from_iterator{node_lists.find(from_node_num)};
 
-  if (from_iterator == node_list.end()) {
-    node_list.emplace(from_node_num,
-                      NodeList::value_type::second_type{to_node_num});
+  if (from_iterator == node_lists.end()) {
+    node_lists.emplace(from_node_num,
+                       NodeList::value_type::second_type{to_node_num});
   } else {
     auto& node_list = *from_iterator;
     node_list.second.emplace(to_node_num);
   }
 }
 
-graph::DiGraph graph::DiGraph::readFrom(std::ifstream& in_stream) {
+graph::DiGraph graph::DiGraph::readFromEdgeLits(std::ifstream& in_stream,
+                                                const char comment) {
   using std::getline;
   using std::string;
   using std::stringstream;
@@ -47,15 +48,31 @@ graph::DiGraph graph::DiGraph::readFrom(std::ifstream& in_stream) {
   stringstream line_stream;
   string from_node_name, to_node_name, line;
 
-  while (in_stream) {
+  while (!in_stream.eof()) {
     getline(in_stream, line);
 
     if (in_stream.eof()) {
       break;
     }
 
-    if (string::npos != line.find_first_of(u8'#')) {
-      continue;
+    if (in_stream.fail()) {
+      throw std::runtime_error("IO error");
+    }
+
+    bool is_start_with_comment{false};
+
+    for (const auto& symbol : line) {
+      if (isspace(symbol)) {
+        continue;
+      }
+
+      if (comment == symbol) {
+        is_start_with_comment = true;
+      } else {
+        is_start_with_comment = false;
+      }
+
+      break;
     }
 
     stringstream line_stream(line);
@@ -75,4 +92,14 @@ void graph::DiGraph::buildInversemapping() {
   for (const auto& nodeNumPair : node_mapping) {
     num2node.emplace(nodeNumPair.second, nodeNumPair.first);
   }
+}
+
+std::vector<graph::DiGraph::NodeLabel> graph::DiGraph::getNodelabels() const {
+  std::vector<NodeLabel> labels(num2node.size(), NodeLabel());
+
+  for (const auto& nodeIndexLabel : num2node) {
+    labels.at(nodeIndexLabel.first) = nodeIndexLabel.second;
+  }
+
+  return labels;
 }

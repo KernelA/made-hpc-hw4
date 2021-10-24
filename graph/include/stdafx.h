@@ -17,3 +17,5 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+
+#include "omp.h"

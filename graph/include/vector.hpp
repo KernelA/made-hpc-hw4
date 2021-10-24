@@ -20,6 +20,7 @@ class Vector : public Matrix<ValueT> {
   }
 
   Vector(const Vector&) = default;
+
   ~Vector() = default;
 
   template <

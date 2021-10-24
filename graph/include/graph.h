@@ -24,10 +24,10 @@ class DiGraph {
   linalg::Matrix<AdjValue> adjMatrix() const {
     linalg::Matrix<AdjValue> adj_matrix(node_mapping.size());
 
-    for (const auto& kv : node_list) {
-      const auto& node_list{kv.second};
+    for (const auto& kv : node_lists) {
+      const auto& nodes{kv.second};
 
-      for (const auto& to_node_num : node_list) {
+      for (const auto& to_node_num : nodes) {
         adj_matrix.at(kv.first, to_node_num) = 1;
       }
     }
@@ -35,15 +35,19 @@ class DiGraph {
     return adj_matrix;
   }
 
-  static DiGraph readFrom(std::ifstream& in_stream);
+  static DiGraph readFromEdgeLits(std::ifstream& in_stream,
+                                  const char comment = u8'#');
+
+  std::vector<NodeLabel> getNodelabels() const;
 
   ~DiGraph() = default;
 
  private:
   void buildInversemapping();
 
-  NodeList node_list;
+  NodeList node_lists;
   NodeMapping node_mapping;
   IndexNodeMapping num2node;
 };
+
 }  // namespace graph

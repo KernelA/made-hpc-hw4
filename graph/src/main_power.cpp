@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
   Matrix<ValueType> adj_matrix{
       randomAdjMatrix<ValueType>(NUMBER_NODES, engine)};
 
-  for (size_t path_length{1}; path_length < MAX_LENGTH; ++path_length) {
+  for (size_t path_length{1}; path_length <= MAX_LENGTH; ++path_length) {
     auto power_matrix{adj_matrix.powerOf(path_length)};
 
     size_t start_node{};

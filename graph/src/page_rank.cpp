@@ -44,12 +44,15 @@ linalg::Vector<double> pagerank::PageRank::compute(
     }
   }
 
-  MatrixType all_ones{outComeAdjmatrix.rowCount()};
-  all_ones.fill(1.0);
+  MatrixType power_matrix{outComeAdjmatrix.rowCount()};
 
-  MatrixType power_matrix{this->damping_factor * outComeAdjmatrix +
-                          (1 - damping_factor) / outComeAdjmatrix.rowCount() *
-                              all_ones};
+  {
+    MatrixType all_ones{outComeAdjmatrix.rowCount()};
+    all_ones.fill(1.0);
+    power_matrix =
+        this->damping_factor * outComeAdjmatrix +
+        (1.0 - damping_factor) / outComeAdjmatrix.rowCount() * all_ones;
+  }
 
   VectorType rank{outComeAdjmatrix.rowCount()};
 
@@ -62,11 +65,13 @@ linalg::Vector<double> pagerank::PageRank::compute(
   for (size_t i{}; i < num_iters; ++i) {
     rank = power_matrix * prev_rank;
 
-    VectorType error{rank - prev_rank};
-
     rank.normalizeL2();
 
-    if (error.squaredNormL2() < eps * eps) {
+    VectorType error{rank - prev_rank};
+
+    double sq_error{error.squaredNormL2()};
+
+    if (sq_error < eps * eps) {
       break;
     }
 

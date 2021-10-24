@@ -1,12 +1,13 @@
 
 find_package(BLAS REQUIRED)
+find_package(OpenMP REQUIRED)
 
 set(_include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 file(GLOB_RECURSE _headers RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${_include_dir}/*.h*)
 
 
-set(MAIN_FILE "main_page_rank;main_power;test_mult;test_shtrassen;test_power")
+set(MAIN_FILE "main_page_rank;main_power;test_mult;test_shtrassen;test_power;test_transpose")
 
 
 foreach(target ${MAIN_FILE})
@@ -20,6 +21,7 @@ foreach(target ${MAIN_FILE})
     target_compile_features(${target} PRIVATE cxx_std_17)
     target_include_directories(${target} PRIVATE ${_include_dir})
     target_precompile_headers(${target} PRIVATE ${_include_dir}/stdafx.h)
+    target_link_libraries(${target} PRIVATE OpenMP::OpenMP_CXX)
 
     if(${target} STREQUAL "test_mult")
         target_link_libraries(${target} PRIVATE BLAS::BLAS)
@@ -49,5 +51,9 @@ add_test(test_matrix_power_one "test_power" "4" "1")
 add_test(test_matrix_power_even_1 "test_power" "32" "4")
 add_test(test_matrix_power_odd_3 "test_power" "32" "3")
 add_test(test_matrix_power_even_2 "test_power" "3" "12")
+
+add_test(test_transpose_1 "test_transpose" "16")
+add_test(test_transpose_2 "test_transpose" "32")
+add_test(test_transpose_3 "test_transpose" "64")
 
 

@@ -29,8 +29,10 @@ class Matrix {
   using pointer = typename Container::pointer;
   using const_pointer = typename Container::const_pointer;
 
-  Matrix(size_t rows, size_t columns)
-      : rows(rows), columns(columns), elements(rows * columns, value_type()) {}
+  Matrix(size_t rows, size_t columns, value_type fill_value)
+      : rows(rows), columns(columns), elements(rows * columns, fill_value) {}
+
+  Matrix(size_t rows, size_t columns) : Matrix(rows, columns, value_type()) {}
 
   explicit Matrix(size_t size) : Matrix(size, size) {}
 
@@ -50,7 +52,7 @@ class Matrix {
     return this->elements.at(getLinearIndex(row, col));
   }
 
-    const Matrix& operator*=(const Matrix& a) {
+  const Matrix& operator*=(const Matrix& a) {
     if (columnCount() != a.rowCount()) {
       throw SizeMismatchException();
     }
@@ -60,9 +62,11 @@ class Matrix {
     this->resize(rows, a.columns);
     fill(static_cast<value_type>(0));
 
-    for (size_t i{}; i < temp.columnCount(); ++i) {
-      for (size_t row{}; row < rowCount(); ++row) {
-        for (size_t col{}; col < a.columnCount(); ++col) {
+#pragma omp parallel
+#pragma omp for simd collapse(3)
+    for (size_t i = 0; i < temp.columnCount(); ++i) {
+      for (size_t row = 0; row < rowCount(); ++row) {
+        for (size_t col = 0; col < a.columnCount(); ++col) {
           this->at(row, col) += temp.at(row, i) * a.at(i, col);
         }
       }
@@ -74,7 +78,8 @@ class Matrix {
   const Matrix& operator+=(const Matrix& a) {
     checkShapeEquality(a);
 
-    for (size_t i{}; i < elements.size(); ++i) {
+#pragma omp parallel for simd
+    for (size_t i = 0; i < elements.size(); ++i) {
       elements[i] += a.elements[i];
     }
 
@@ -84,7 +89,8 @@ class Matrix {
   Matrix operator-=(const Matrix& a) {
     checkShapeEquality(a);
 
-    for (size_t i{}; i < elements.size(); ++i) {
+#pragma omp parallel for simd
+    for (size_t i = 0; i < elements.size(); ++i) {
       elements[i] -= a.elements[i];
     }
 
@@ -106,11 +112,9 @@ class Matrix {
       return false;
     }
 
-    for (size_t i{}; i < rows; ++i) {
-      for (size_t j{}; j < columns; ++j) {
-        if (this->at(i, j) != a.at(i, j)) {
-          return false;
-        }
+    for (size_t i{}; i < elements.size(); ++i) {
+      if (elements.at(i) != a.elements.at(i)) {
+        return false;
       }
     }
 
@@ -143,7 +147,7 @@ class Matrix {
     Matrix transposed(columnCount(), rowCount());
 
     for (size_t row{}; row < rowCount(); ++row) {
-      for (size_t col{row + 1}; col < columnCount(); ++col) {
+      for (size_t col{}; col < columnCount(); ++col) {
         transposed.at(col, row) = this->at(row, col);
       }
     }
@@ -227,14 +231,14 @@ class Matrix {
 
 template <typename T>
 Matrix<T> operator*(const Matrix<T>& a, const Matrix<T>& b) {
-  Matrix<T> matrix_mult(a);
+  auto matrix_mult(a);
 
   return matrix_mult *= b;
 }
 
 template <typename T>
 Matrix<T> operator*(const Matrix<T>& a, const T& value) {
-  Matrix<T> matrix_mult(a);
+  auto matrix_mult(a);
 
   for (size_t row{}; row < matrix_mult.rowCount(); ++row) {
     for (size_t col{}; col < matrix_mult.columnCount(); ++col) {
