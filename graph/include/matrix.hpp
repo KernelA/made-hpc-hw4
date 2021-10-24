@@ -62,11 +62,11 @@ class Matrix {
     this->resize(rows, a.columns);
     fill(static_cast<value_type>(0));
 
-    // #pragma omp parallel
-    // #pragma omp for collapse(3)
-    for (size_t i = 0; i < temp.columnCount(); ++i) {
-      for (size_t row = 0; row < rowCount(); ++row) {
-        for (size_t col = 0; col < a.columnCount(); ++col) {
+#pragma omp parallel
+#pragma omp for simd collapse(2)
+    for (size_t row = 0; row < rowCount(); ++row) {
+      for (size_t col = 0; col < a.columnCount(); ++col) {
+        for (size_t i = 0; i < temp.columnCount(); ++i) {
           this->at(row, col) += temp.at(row, i) * a.at(i, col);
         }
       }
