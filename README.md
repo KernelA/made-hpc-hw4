@@ -1,38 +1,38 @@
-# HW 2 умножение матриц и написание bash скриптов
+# HW 4 PageRank
 
 ## Требования для запуска
 
 1. CMake 3.17 или выше.
 2. Компилятор с поддержкой C++17.
-3. Установленный BLAS.
+3. Установленный BLAS и OpenMP.
 4. ОС на основе UNIX.
-5. Docker 19.04 или выше.
 
 ## Задания
 
-### Исходный код проекта по перемножению матриц
+### Расчёт степеней матрицы A
 
-Реализована два алгоритма: обычный и алгоритм Штрассена.
+Используется следующие оптимизации:
+* Быстрое возведение в степень
+* Алгоритм Штрассена для перемножения матрицы
+* OpenMP для распараллеливания циклов при использовании основных арифметических операциях
+* SIMD инструкции для OpenMP
+* loops placing из предыдущих заданий
 
-[См. matrix-mul (используется CMake вместо Makefile)](matrix-mul)
+[Реализация](graph/src/main_power.cpp)
 
-### Замеры времени
+### PageRank
 
-[При запуске в ОС](reports/native_os_test.txt)
+[Исходные данные были взяты отсюда.](https://snap.stanford.edu/data/email-Eu-core.html) Это граф перессылки email внутри большого исследовательского института в Европе. Была произведена некоторая предобработка, чтобы выделить наиболее интересную часть. Данные анонимны, поэтому доступны только идентификаторы сотрудников.
 
-[При запуске в Docker](reports/docker_test.txt)
+Используется следующие оптимизации:
+* OpenMP для распараллеливания циклов при использовании основных арифметических операциях
+* SIMD инструкции для OpenMP
+* loops placing из предыдущих заданий
 
-### Скрипты для bash
+[Реализация](graph/src/main_page_rank.cpp)
 
-[См. scripts](scripts/scripts.sh)
+[Визуализация PageRank и наивного ранжирования](images/rank.md)
 
-Результаты выполнения можно [посмотреть в GitHub Actions, в секции Test scripts](https://github.com/KernelA/made-hpc-hw2/actions/workflows/build.yaml)
-
-### LINPACK тест
-
-[Отчёт по запуску LINPACK теста от Intel](reports/linpack.txt)
-
-[Была использована реализация теста от Intel](https://software.intel.com/content/www/us/en/develop/articles/intel-mkl-benchmarks-suite.html)
 
 ## Как запустить
 
@@ -47,12 +47,14 @@ cmake -S . -B ./build
 cmake --build ./build --config Release --parallel $(nproc) --target all
 ```
 
-После успешной сборки проекта:
-```bash
-docker build -t mult .
-docker run mult
+Запуск перечисления числа путей:
+```
+./build/graph/main_power
 ```
 
-**Полна переносимость программы внутри контейнера не гарантируется при сборке на разных ОС**
+Запуск расчёта PageRank:
+```
+./build/graph/main_page_rank ./data/simplified.txt ./data/page_rank.txt
+```
 
-https://snap.stanford.edu/data/email-Eu-core.html
+
