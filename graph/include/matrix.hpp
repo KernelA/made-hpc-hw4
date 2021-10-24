@@ -63,7 +63,7 @@ class Matrix {
     fill(static_cast<value_type>(0));
 
 #pragma omp parallel
-#pragma omp for simd collapse(3)
+#pragma omp for collapse(3)
     for (size_t i = 0; i < temp.columnCount(); ++i) {
       for (size_t row = 0; row < rowCount(); ++row) {
         for (size_t col = 0; col < a.columnCount(); ++col) {
@@ -78,7 +78,7 @@ class Matrix {
   const Matrix& operator+=(const Matrix& a) {
     checkShapeEquality(a);
 
-#pragma omp parallel for simd
+#pragma omp parallel for
     for (size_t i = 0; i < elements.size(); ++i) {
       elements[i] += a.elements[i];
     }
@@ -89,7 +89,7 @@ class Matrix {
   Matrix operator-=(const Matrix& a) {
     checkShapeEquality(a);
 
-#pragma omp parallel for simd
+#pragma omp parallel for
     for (size_t i = 0; i < elements.size(); ++i) {
       elements[i] -= a.elements[i];
     }

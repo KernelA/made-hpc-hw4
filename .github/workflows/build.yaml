@@ -37,7 +37,6 @@ jobs:
       
       - name: "Run tests"
         env:
-          OMP_NUM_THREAD: 1
           CTEST_PARALLEL_LEVEL: 2
         working-directory: ${{ github.workspace }}/build
         run: ctest
