@@ -1,15 +1,16 @@
-#include <cassert>
-
 #include "cblas.h"
-#include "matrix.h"
+#include "matrix.hpp"
 #include "stdafx.h"
 #include "utils.h"
 
 int main(int argc, char** argv) {
   using std::cerr;
   using std::cout;
+  using std::default_random_engine;
   using std::endl;
   using namespace linalg;
+
+  default_random_engine engine;
 
   if (argc != 2 && argc != 5) {
     cerr << "Please specify matrix size" << endl;
@@ -27,12 +28,12 @@ int main(int argc, char** argv) {
     b_columns = std::stoi(argv[4]);
   }
 
-  Matrix a(a_rows, a_columns), b(b_rows, b_columns);
+  Matrix<double> a(a_rows, a_columns), b(b_rows, b_columns);
 
-  Matrix c(a.rowCount(), b.columnCount());
+  Matrix<double> c(a.rowCount(), b.columnCount());
 
-  fill_matrix(a);
-  fill_matrix(b);
+  a.randomFill(-100, 100, engine);
+  b.randomFill(-100, 100, engine);
 
   cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, c.rowCount(),
               c.columnCount(), a.columnCount(), 1.0, a.getRawData(),
