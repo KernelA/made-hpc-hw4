@@ -2,8 +2,8 @@
 
 ## PageRank
 
-![page-rank](page_rank.png)
+![page-rank](page_rank.jpg)
 
 ## Наивное ранжирование
 
-![naive-rank](naive_rank.png)
+![naive-rank](naive_rank.jpg)
