@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
 
   auto naive_rank{naive_pr.compute(adj_matrix)};
 
-  PageRank page_rank{0.9, 2'000, 1e-3};
+  PageRank page_rank{0.85, 2'000, 1e-4};
 
   auto rank{page_rank.compute(adj_matrix)};
 

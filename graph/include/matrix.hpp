@@ -78,7 +78,7 @@ class Matrix {
   const Matrix& operator+=(const Matrix& a) {
     checkShapeEquality(a);
 
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < elements.size(); ++i) {
       elements[i] += a.elements[i];
     }
@@ -89,7 +89,7 @@ class Matrix {
   Matrix operator-=(const Matrix& a) {
     checkShapeEquality(a);
 
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < elements.size(); ++i) {
       elements[i] -= a.elements[i];
     }
